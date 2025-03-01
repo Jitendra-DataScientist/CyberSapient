@@ -1,4 +1,4 @@
-this branch contains code (and readme!) that was either generated from chatgpt/deepseek, didn't really test this
+**this branch contains code (and readme!) that was either generated from chatgpt/deepseek, didn't really test these code.**
 
 # Communication Skills Coach
 
