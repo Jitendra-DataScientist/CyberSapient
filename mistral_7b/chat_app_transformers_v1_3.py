@@ -2,6 +2,7 @@
     uses mistralai/Mistral-7B-v0.1 running locally
 """
 import os
+import sys
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from dotenv import load_dotenv
 
@@ -22,7 +23,7 @@ model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-v0.1", token=
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
 
-def generate_response(prompt, context="", max_new_tokens=100):
+def generate_response(prompt, context="", max_new_tokens=500):
     # Combine the context with the new prompt
     full_prompt = context + "\nYou: " + prompt + "\nMistral-7B:" if context else prompt
 
@@ -52,7 +53,8 @@ while True:
     user_input = input("You: ")
     if user_input.lower() == "exit":
         print("Goodbye!")
-        break
+        # exit()
+        sys.exit()
 
     # Generate a response
     response = generate_response(user_input, context)
