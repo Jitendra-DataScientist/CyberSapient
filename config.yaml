@@ -1,0 +1,11 @@
+
+---
+
+### 3. `config.yaml`
+
+```yaml
+training_prompts:
+  impromptu: "Discuss why empathy is essential in communication."
+  storytelling: "Share a story about a significant turning point in your life."
+  conflict_resolution: "Your teammate is frustrated and unresponsive. How do you address this?"
+

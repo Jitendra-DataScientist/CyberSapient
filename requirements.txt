@@ -1,0 +1,9 @@
+transformers
+torch
+gradio
+openai-whisper
+bitsandbytes
+pyyaml
+fastapi
+uvicorn
+
