@@ -1,5 +1,5 @@
 """
-    uses mistralai/Mistral-7B-v0.1 running locally
+    uses mistralai/Mistral-7B-v0.2 running locally
 """
 import os
 import sys
@@ -16,23 +16,27 @@ if not hf_token:
     raise ValueError("Hugging Face token not found in environment variables.")
 
 # Load the tokenizer and model with the Hugging Face token
-tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-v0.1", token=hf_token)
-model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-v0.1", token=hf_token).to("cuda")
+tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2", token=hf_token)
+model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-Instruct-v0.2", token=hf_token, device_map="auto")
 
 # Set pad_token_id if not already set
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
 
-def generate_response(prompt, context="", max_new_tokens=500):
-    # Combine the context with the new prompt
-    full_prompt = context + "\nYou: " + prompt + "\nMistral-7B:" if context else prompt
+def generate_response(messages, max_new_tokens=100):
 
     # Tokenize the input prompt
-    inputs = tokenizer(full_prompt, return_tensors="pt")
+    inputs = tokenizer.apply_chat_template(messages, return_tensors="pt")
 
     # Generate a response using the model
+    # outputs = model.generate(
+    #     inputs["input_ids"],
+    #     attention_mask=inputs["attention_mask"],  # Pass the attention mask
+    #     max_new_tokens=max_new_tokens,  # Control the number of new tokens generated
+    #     pad_token_id=tokenizer.pad_token_id,  # Explicitly set pad_token_id
+    # )
     outputs = model.generate(
-        inputs["input_ids"],
+        inputs,
         attention_mask=inputs["attention_mask"],  # Pass the attention mask
         max_new_tokens=max_new_tokens,  # Control the number of new tokens generated
         pad_token_id=tokenizer.pad_token_id,  # Explicitly set pad_token_id
@@ -42,23 +46,20 @@ def generate_response(prompt, context="", max_new_tokens=500):
     response = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
     # Extract only the new response (remove the input and context)
-    response = response[len(full_prompt):].strip()
+    # response = response[len(full_prompt):].strip()
 
     return response
 
 # Example usage in a chat loop
 print("Chat with Mistral-7B! Type 'exit' to end the chat.")
-context = ""
+messages = []
 while True:
     user_input = input("You: ")
     if user_input.lower() == "exit":
         print("Goodbye!")
-        # exit()
-        sys.exit()
-
+        exit()
+    messages.append({"role": "user", "content": user_input})
     # Generate a response
-    response = generate_response(user_input, context)
+    response = generate_response(messages)
     print(f"Mistral-7B: {response}")
-
-    # Update the context with the new conversation
-    context += f"\nYou: {user_input}\nMistral-7B: {response}"
+    messages.append({"role": "assistant", "content": response})
